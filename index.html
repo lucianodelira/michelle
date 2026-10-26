@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palpites da Michelly 🐔</title>
+
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2d6a1e">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Fredoka', Arial, sans-serif;
+    background: linear-gradient(180deg, #87CEEB 0%, #a8e6a1 40%, #f4e4bc 100%);
+    background-attachment: fixed;
+    color: #2d3a1e;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, #2d6a1e 0%, #3d8b27 50%, #5a9e3a 100%);
+    color: #fff;
+    padding: 18px 12px 14px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,.25);
+    border-bottom: 4px solid #f4c430;
+  }
+
+  header h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 0 #1a4a12;
+    letter-spacing: 0.5px;
+  }
+
+  header h1:first-child {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin-bottom: 2px;
+  }
+
+  #data-hora {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    background: rgba(255,255,255,0.15);
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+
+  /* ===== MAIN ===== */
+  main {
+    padding: 16px 12px 100px;
+    max-width: 920px;
+    margin: auto;
+  }
+
+  .loading, .erro, .card {
+    background: #fffef5;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    margin-bottom: 18px;
+    border: 3px solid #e8d48b;
+    position: relative;
+    overflow: hidden;
+    animation: entrar 0.5s ease;
+  }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card::before {
+    content: "🌾";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 1.4rem;
+    opacity: 0.7;
+  }
+
+  .top-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #2d6a1e;
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px dashed #d4c48a;
+  }
+
+  .top-card span:first-child {
+    background: #fff3cd;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .lista-milhares {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+  }
+
+  .milhar-card {
+    background: linear-gradient(145deg, #fff9e6, #fef3c7);
+    border: 2px solid #f0d78c;
+    border-radius: 14px;
+    padding: 10px 6px;
+    text-align: center;
+    transition: transform 0.25s, box-shadow 0.25s;
+    animation: balancar 3s ease-in-out infinite;
+  }
+
+  .milhar-card:nth-child(2) { animation-delay: 0.3s; }
+  .milhar-card:nth-child(3) { animation-delay: 0.6s; }
+  .milhar-card:nth-child(4) { animation-delay: 0.9s; }
+
+  .milhar-card:hover {
+    transform: scale(1.08) rotate(-2deg);
+    box-shadow: 0 8px 16px rgba(0,0,0,.15);
+  }
+
+  @keyframes balancar {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(1.5deg); }
+    75% { transform: rotate(-1.5deg); }
+  }
+
+  .milhar-numero {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #b45309;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
+  .botoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  button {
+    flex: 1;
+    background: linear-gradient(180deg, #3d8b27, #2d6a1e);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 0 #1a4a12;
+    transition: all 0.2s;
+  }
+
+  button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #1a4a12;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: linear-gradient(90deg, #2d6a1e, #3d8b27, #2d6a1e);
+    padding: 12px 8px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 -4px 15px rgba(0,0,0,.2);
+    border-top: 3px solid #f4c430;
+  }
+
+  footer button {
+    max-width: 110px;
+    font-size: 0.85rem;
+    padding: 10px 6px;
+  }
+
+  .btn-jogar {
+    background: linear-gradient(45deg, #ffcc00, #ff8c00, #ff6a00) !important;
+    color: #3d2a00 !important;
+    box-shadow: 0 4px 0 #c45c00 !important;
+    animation: pulsar 1.2s infinite;
+    font-weight: 700;
+  }
+
+  @keyframes pulsar {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* ===== TOAST ===== */
+  .mensagem-copy {
+    position: fixed;
+    left: 50%;
+    bottom: 90px;
+    transform: translateX(-50%);
+    background: #2d3a1e;
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: .3s;
+    z-index: 200;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  }
+  .mensagem-copy.mostrar { opacity: 1; }
+
+  /* ===== CONTROLE DE MÚSICA ===== */
+  .music-control {
+    position: fixed;
+    top: 90px;
+    right: 14px;
+    z-index: 150;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid #f4c430;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    transition: transform 0.2s;
+  }
+  .music-control:hover { transform: scale(1.1); }
+  .music-control.muted { opacity: 0.6; }
+
+  /* Decorações flutuantes */
+  .decoracao {
+    position: fixed;
+    font-size: 1.8rem;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+    animation: flutuar 8s ease-in-out infinite;
+  }
+  .d1 { top: 20%; left: 5%; animation-delay: 0s; }
+  .d2 { top: 45%; right: 8%; animation-delay: 2s; }
+  .d3 { top: 70%; left: 10%; animation-delay: 4s; }
+  .d4 { top: 30%; right: 15%; animation-delay: 1s; }
+
+  @keyframes flutuar {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-18px) rotate(8deg); }
+  }
+
+  /* ===== NOVAS SEÇÕES (Gerar Palpites + Puxadas) ===== */
+  .ferramentas {
+    background: #fffef5;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    margin-bottom: 20px;
+    border: 3px solid #e8d48b;
+  }
+
+  .ferramentas h2 {
+    color: #2d6a1e;
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .ferramentas label {
+    display: block;
+    font-weight: 600;
+    margin: 10px 0 6px;
+    color: #3d4a2a;
+  }
+
+  .ferramentas select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #d4c48a;
+    background: #fff9e6;
+    font-size: 1rem;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+
+  .ferramentas button {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .ferramentas button:disabled {
+    background: #a0a0a0;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .resultado-box {
+    margin-top: 14px;
+    padding: 14px;
+    background: #f0fdf4;
+    border-radius: 12px;
+    border: 2px dashed #86efac;
+  }
+
+  .resultado-box h3 {
+    color: #166534;
+    margin-bottom: 10px;
+  }
+
+  .resultado-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .resultado-box li {
+    padding: 6px 0;
+    border-bottom: 1px solid #d1fae5;
+    font-size: 1.05rem;
+  }
+
+  .resultado-box li:last-child {
+    border-bottom: none;
+  }
+
+  .btn-whats {
+    background: linear-gradient(180deg, #25d366, #128c7e) !important;
+    box-shadow: 0 4px 0 #0b6b4f !important;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Decorações de fazenda -->
+<div class="decoracao d1">🐔</div>
+<div class="decoracao d2">🐄</div>
+<div class="decoracao d3">🌾</div>
+<div class="decoracao d4">🐷</div>
+
+<!-- Controle de música -->
+<div class="music-control" id="btnMusica" title="Ligar/Desligar música">🎵</div>
+
+<header>
+  <h1>🐔 PALPITES DA MICHELLY 🐔</h1>
+  <h1>🇧🇷 Banca Brasileira</h1>
+  <div id="data-hora"></div>
+</header>
+
+<main id="lista-palpite">
+  <div class="loading">🌾 Carregando palpites da fazenda...</div>
+</main>
+
+<!-- ===================== NOVAS FUNÇÕES ADICIONADAS ===================== -->
+<div style="max-width:920px;margin:0 auto;padding:0 12px 20px;">
+
+  <!-- GERAR PALPITES -->
+  <div class="ferramentas">
+    <h2>🎲 Gerar Palpites</h2>
+    <label for="bancaSelect">Escolha a Banca:</label>
+    <select id="bancaSelect">
+      <option value="">Selecione uma banca</option>
+      <option value="PT Rio">PT Rio</option>
+      <option value="Look GO">Look GO</option>
+      <option value="Nacional">Nacional</option>
+      <option value="Maluca BA">Maluca BA</option>
+      <option value="Lotep">Lotep</option>
+    </select>
+    <button id="gerarPalpites" disabled>Gerar Palpites</button>
+    <div id="palpiteOutput" class="resultado-box" style="display:none;"></div>
+  </div>
+
+  <!-- CONSULTAR PUXADAS -->
+  <div class="ferramentas">
+    <h2>🔗 Consultar Puxadas</h2>
+    <label for="animalSelect">Escolha um Animal:</label>
+    <select id="animalSelect">
+      <option value="">Selecione um animal</option>
+    </select>
+    <button id="verPuxada" style="display:none;">Ver Puxadas</button>
+    <div id="puxadaResult" class="resultado-box" style="display:none;"></div>
+  </div>
+
+</div>
+<!-- ===================== FIM DAS NOVAS FUNÇÕES ===================== -->
+
+<footer>
+  <button>Suporte</button>
+  <button>Compartilhar</button>
+  <button id="instalarApp">📥 Download</button>
+  <button class="btn-jogar" onclick="window.open('https://app.bancabrasileira.com.br/pr/uVZ2pAvP','_blank')">🎰 JOGAR</button>
+</footer>
+
+<!-- Música de fazenda -->
+<audio id="musicaFazenda" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_4e0e6b5b5a.mp3?filename=farm-ambient-110177.mp3" type="audio/mpeg">
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* ===================== CÓDIGO ORIGINAL (NÃO ALTERADO) ===================== */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+document.addEventListener('click',async e=>{
+if(e.target.id==='instalarApp'){
+if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}
+else alert('Use o menu do navegador e escolha Adicionar à tela inicial.');
+}});
+
+const API_URL='https://script.google.com/macros/s/AKfycbz5IvvaLjGuhvBD6xHAwuTsVBA9wEFu2t4rbgpwx4YMc6B-_bhhNY1WwkEAvPfQoogXsw/exec';
+const lista=document.getElementById('lista-palpite');
+
+async function carregarPalpites(){try{const r=await fetch(API_URL);const j=await r.json();lista.innerHTML='';
+(j.data||[]).forEach(p=>{const c=document.createElement('div');c.className='card';c.innerHTML=`<div class="top-card"><span>🐾 ${p.animal}</span><span>Grupo ${p.grupo}</span></div><div><b>Loteria:</b> ${p.loteria}<br><b>Próximo:</b> ${p.horario}</div><div class="lista-milhares">${p.milhares.map((m,i)=>`<div class="milhar-card"><div class="milhar-numero">${m.milhar}</div><div>${i+1}º<br>Dz ${m.dezena}</div></div>`).join('')}</div><div class="botoes"><button onclick='compartilhar(${JSON.stringify(p)})'>📲 Compartilhar</button><button onclick='copiarMilhar(${JSON.stringify(p)})'>📋 Copiar</button></div>`;lista.appendChild(c);});}catch(e){lista.innerHTML='<div class="erro">Erro ao carregar.</div>';}}
+
+function compartilhar(p){
+  const agora = new Date();
+  const data = agora.toLocaleDateString('pt-BR');
+  const hora = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const listaMilhares = p.milhares.map(m => m.milhar).join('\n');
+  const texto = `📅 Data: ${data}
+🕒 Horário: ${hora}
+🎰 Loteria: ${p.loteria}
+⏳ Próxima Extração: ${p.horario}
+🐾 Animal: ${p.animal}
+🎯 Grupo: ${p.grupo}
+🔥 PALPITES DA MICHELLY
+----------------------------------
+💎 Milhar:
+${listaMilhares}
+🍀 Boa sorte!
+🌐 palpite.bancabrasileira.site`;
+  const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+  window.open(url,'_blank');
+}
+
+function copiarMilhar(p){navigator.clipboard.writeText(p.milhares.map(x=>x.milhar).join(', '));mostrar('Milhares copiadas! 🐔')}
+function mostrar(t){let d=document.createElement('div');d.className='mensagem-copy';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.classList.add('mostrar'),50);setTimeout(()=>d.remove(),2500);}
+function relogio(){document.getElementById('data-hora').textContent='📅 '+new Date().toLocaleString('pt-BR')}
+carregarPalpites();relogio();setInterval(relogio,1000);setInterval(carregarPalpites,60000);
+
+/* ===== CONTROLE DA MÚSICA ===== */
+const audio = document.getElementById('musicaFazenda');
+const btnMusica = document.getElementById('btnMusica');
+let musicaLigada = false;
+
+btnMusica.addEventListener('click', () => {
+  if (musicaLigada) {
+    audio.pause();
+    btnMusica.textContent = '🔇';
+    btnMusica.classList.add('muted');
+    musicaLigada = false;
+  } else {
+    audio.volume = 0.35;
+    audio.play().catch(() => {});
+    btnMusica.textContent = '🎵';
+    btnMusica.classList.remove('muted');
+    musicaLigada = true;
+  }
+});
+
+document.body.addEventListener('click', function iniciarMusica() {
+  if (!musicaLigada) {
+    audio.volume = 0.35;
+    audio.play().then(() => {
+      musicaLigada = true;
+      btnMusica.textContent = '🎵';
+      btnMusica.classList.remove('muted');
+    }).catch(() => {});
+  }
+  document.body.removeEventListener('click', iniciarMusica);
+}, { once: true });
+
+/* ===================== NOVAS FUNÇÕES (Gerar Palpites + Puxadas) ===================== */
+const animals = [
+  { name: 'Avestruz', emoji: '🦢', group: 1, tens: ['01', '02', '03', '04'] },
+  { name: 'Águia', emoji: '🦅', group: 2, tens: ['05', '06', '07', '08'] },
+  { name: 'Burro', emoji: '🦙', group: 3, tens: ['09', '10', '11', '12'] },
+  { name: 'Borboleta', emoji: '🦋', group: 4, tens: ['13', '14', '15', '16'] },
+  { name: 'Cachorro', emoji: '🐶', group: 5, tens: ['17', '18', '19', '20'] },
+  { name: 'Cabra', emoji: '🐐', group: 6, tens: ['21', '22', '23', '24'] },
+  { name: 'Carneiro', emoji: '🐏', group: 7, tens: ['25', '26', '27', '28'] },
+  { name: 'Camelo', emoji: '🐪', group: 8, tens: ['29', '30', '31', '32'] },
+  { name: 'Cobra', emoji: '🐍', group: 9, tens: ['33', '34', '35', '36'] },
+  { name: 'Coelho', emoji: '🐰', group: 10, tens: ['37', '38', '39', '40'] },
+  { name: 'Cavalo', emoji: '🐎', group: 11, tens: ['41', '42', '43', '44'] },
+  { name: 'Elefante', emoji: '🐘', group: 12, tens: ['45', '46', '47', '48'] },
+  { name: 'Galo', emoji: '🐓', group: 13, tens: ['49', '50', '51', '52'] },
+  { name: 'Gato', emoji: '🐱', group: 14, tens: ['53', '54', '55', '56'] },
+  { name: 'Jacaré', emoji: '🐊', group: 15, tens: ['57', '58', '59', '60'] },
+  { name: 'Leão', emoji: '🦁', group: 16, tens: ['61', '62', '63', '64'] },
+  { name: 'Macaco', emoji: '🐒', group: 17, tens: ['65', '66', '67', '68'] },
+  { name: 'Porco', emoji: '🐷', group: 18, tens: ['69', '70', '71', '72'] },
+  { name: 'Pavão', emoji: '🦚', group: 19, tens: ['73', '74', '75', '76'] },
+  { name: 'Peru', emoji: '🦃', group: 20, tens: ['77', '78', '79', '80'] },
+  { name: 'Touro', emoji: '🐂', group: 21, tens: ['81', '82', '83', '84'] },
+  { name: 'Tigre', emoji: '🐅', group: 22, tens: ['85', '86', '87', '88'] },
+  { name: 'Urso', emoji: '🐻', group: 23, tens: ['89', '90', '91', '92'] },
+  { name: 'Veado', emoji: '🦌', group: 24, tens: ['93', '94', '95', '96'] },
+  { name: 'Vaca', emoji: '🐄', group: 25, tens: ['97', '98', '99', '00'] }
+];
+
+const bancas = {
+  'PT Rio': {
+    schedules: {
+      'Domingo': ['09:30', '11:30', '14:30', '16:30'],
+      'Segunda': ['09:30', '11:30', '14:30', '16:30', '18:30', '21:30'],
+      'Terça': ['09:30', '11:30', '14:30', '16:30', '18:30', '21:30'],
+      'Quarta': ['09:30', '11:30', '14:30', '16:30', '19:00', '21:30'],
+      'Quinta': ['09:30', '11:30', '14:30', '16:30', '18:30', '21:30'],
+      'Sexta': ['09:30', '11:30', '14:30', '16:30', '18:30', '21:30'],
+      'Sábado': ['09:30', '11:30', '14:30', '16:30', '19:00', '21:30']
+    }
+  },
+  'Look GO': {
+    schedules: {
+      'Domingo': ['09:00', '11:00', '14:00', '16:00', '18:00', '21:00'],
+      'Segunda': ['09:00', '11:00', '14:00', '16:00', '18:00', '21:00'],
+      'Terça': ['09:00', '11:00', '14:00', '16:00', '18:00', '21:00'],
+      'Quarta': ['09:00', '11:00', '14:00', '16:00', '18:00', '19:00', '21:00'],
+      'Quinta': ['09:00', '11:00', '14:00', '16:00', '18:00', '21:00'],
+      'Sexta': ['09:00', '11:00', '14:00', '16:00', '18:00', '21:00'],
+      'Sábado': ['09:00', '11:00', '14:00', '16:00', '18:00', '19:00', '21:00']
+    }
+  },
+  'Nacional': {
+    schedules: {
+      'Domingo': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Segunda': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Terça': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Quarta': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Quinta': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Sexta': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00'],
+      'Sábado': ['02:00', '08:00', '10:00', '12:00', '15:00', '17:00', '20:00', '23:00']
+    }
+  },
+  'Maluca BA': {
+    schedules: {
+      'Domingo': ['10:00', '12:00', '15:00'],
+      'Segunda': ['10:00', '12:00', '15:00', '19:00', '21:00'],
+      'Terça': ['10:00', '12:00', '15:00', '19:00', '21:00'],
+      'Quarta': ['10:00', '12:00', '15:00', '19:00', '21:00'],
+      'Quinta': ['10:00', '12:00', '15:00', '19:00', '21:00'],
+      'Sexta': ['10:00', '12:00', '15:00', '19:00', '21:00'],
+      'Sábado': ['10:00', '12:00', '15:00', '19:00', '21:00']
+    }
+  },
+  'Lotep': {
+    schedules: {
+      'Domingo': ['10:45', '12:45'],
+      'Segunda': ['10:45', '12:45', '15:45', '18:00'],
+      'Terça': ['10:45', '12:45', '15:45', '18:00'],
+      'Quarta': ['10:45', '12:45', '15:45', '18:00', '19:00'],
+      'Quinta': ['10:45', '12:45', '15:45', '18:00'],
+      'Sexta': ['10:45', '12:45', '15:45', '18:00'],
+      'Sábado': ['10:45', '12:45', '15:45', '18:00', '19:00']
+    }
+  }
+};
+
+const puxadas = {
+  'Avestruz': ['Pavão', 'Águia', 'Galo'],
+  'Águia': ['Avestruz', 'Galo', 'Pavão'],
+  'Burro': ['Cavalo', 'Vaca', 'Touro'],
+  'Borboleta': ['Gato', 'Cobra', 'Coelho'],
+  'Cachorro': ['Galo', 'Camelo', 'Macaco'],
+  'Cabra': ['Vaca', 'Carneiro', 'Touro'],
+  'Carneiro': ['Cabra', 'Vaca', 'Touro'],
+  'Camelo': ['Cachorro', 'Urso', 'Avestruz'],
+  'Cobra': ['Borboleta', 'Jacaré', 'Gato'],
+  'Coelho': ['Borboleta', 'Gato', 'Cobra'],
+  'Cavalo': ['Burro', 'Vaca', 'Carneiro'],
+  'Elefante': ['Urso', 'Touro', 'Leão'],
+  'Galo': ['Avestruz', 'Águia', 'Pavão'],
+  'Gato': ['Borboleta', 'Cobra', 'Coelho'],
+  'Jacaré': ['Cobra', 'Porco', 'Borboleta'],
+  'Leão': ['Elefante', 'Tigre', 'Urso'],
+  'Macaco': ['Cachorro', 'Gato', 'Leão'],
+  'Porco': ['Jacaré', 'Vaca', 'Cabra'],
+  'Pavão': ['Avestruz', 'Galo', 'Águia'],
+  'Peru': ['Galo', 'Pavão', 'Avestruz'],
+  'Touro': ['Carneiro', 'Vaca', 'Cabra'],
+  'Tigre': ['Leão', 'Porco', 'Elefante'],
+  'Urso': ['Camelo', 'Elefante', 'Leão'],
+  'Veado': ['Coelho', 'Borboleta', 'Gato'],
+  'Vaca': ['Cabra', 'Carneiro', 'Touro']
+};
+
+function generateMilhar() {
+  return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+}
+
+function getAnimalByMilhar(milhar) {
+  const tens = milhar.slice(-2);
+  return animals.find(animal => animal.tens.includes(tens)) || animals[0];
+}
+
+function getNextDrawTime(banca, now) {
+  if (!bancas[banca]) return null;
+  const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const today = days[now.getDay()];
+  const schedules = bancas[banca].schedules[today];
+  if (!schedules || schedules.length === 0) return null;
+  const nowTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  const nextTime = schedules.find(time => time > nowTime) || schedules[0];
+  let nextDate = new Date(now);
+  if (!schedules.find(time => time > nowTime)) {
+    nextDate.setDate(now.getDate() + 1);
+  }
+  const [hours, minutes] = nextTime.split(':');
+  nextDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  return { time: nextTime, date: nextDate };
+}
+
+function generatePalpites(banca, drawTime) {
+  const key = `palpites_${banca}_${drawTime}`;
+  const stored = localStorage.getItem(key);
+  if (stored) return JSON.parse(stored);
+  const palpites = [];
+  for (let i = 0; i < 10; i++) {
+    const milhar = generateMilhar();
+    const animal = getAnimalByMilhar(milhar);
+    palpites.push({ milhar, animal: `${animal.emoji} ${animal.name}` });
+  }
+  localStorage.setItem(key, JSON.stringify(palpites));
+  return palpites;
+}
+
+function shareOnWhatsApp(banca, drawTime, palpites) {
+  const message = `🐔 PALPITES DA MICHELLY\n\nPalpites para ${banca} - ${drawTime}:\n${palpites.map(p => `${p.milhar} - ${p.animal}`).join('\n')}\n\n🍀 Boa sorte!\n🌐 palpite.bancabrasileira.site`;
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+function displayPalpites() {
+  const bancaSelect = document.getElementById('bancaSelect');
+  const palpiteOutput = document.getElementById('palpiteOutput');
+  const gerarPalpitesBtn = document.getElementById('gerarPalpites');
+
+  const selectedBanca = bancaSelect.value;
+  if (!selectedBanca) {
+    palpiteOutput.style.display = 'block';
+    palpiteOutput.innerHTML = '<p style="color:#dc2626;">Selecione uma banca primeiro.</p>';
+    return;
+  }
+
+  const now = new Date();
+  const nextDraw = getNextDrawTime(selectedBanca, now);
+  if (!nextDraw) {
+    palpiteOutput.style.display = 'block';
+    palpiteOutput.innerHTML = '<p style="color:#dc2626;">Nenhum horário disponível para hoje.</p>';
+    return;
+  }
+
+  const palpites = generatePalpites(selectedBanca, nextDraw.time);
+  palpiteOutput.style.display = 'block';
+  palpiteOutput.innerHTML = `
+    <h3>${selectedBanca} — ${nextDraw.time}</h3>
+    <ul>
+      ${palpites.map(p => `<li><strong>${p.milhar}</strong> — ${p.animal}</li>`).join('')}
+    </ul>
+    <button class="btn-whats" onclick='shareOnWhatsApp("${selectedBanca}", "${nextDraw.time}", ${JSON.stringify(palpites)})'>📲 Compartilhar no WhatsApp</button>
+  `;
+}
+
+function populateAnimalSelect() {
+  const select = document.getElementById('animalSelect');
+  select.innerHTML = '<option value="">Selecione um animal</option>';
+  animals.forEach(animal => {
+    const option = document.createElement('option');
+    option.value = animal.name;
+    option.textContent = `${animal.emoji} ${animal.name}`;
+    select.appendChild(option);
+  });
+}
+
+function handlePuxada() {
+  const select = document.getElementById('animalSelect');
+  const verPuxada = document.getElementById('verPuxada');
+  const puxadaResult = document.getElementById('puxadaResult');
+
+  select.addEventListener('change', () => {
+    verPuxada.style.display = select.value ? 'block' : 'none';
+    puxadaResult.style.display = 'none';
+    puxadaResult.innerHTML = '';
+  });
+
+  verPuxada.addEventListener('click', () => {
+    const animal = select.value;
+    if (!animal) return;
+    const pulls = puxadas[animal] || [];
+    puxadaResult.style.display = 'block';
+    puxadaResult.innerHTML = `
+      <h3>Puxadas para ${animal}</h3>
+      <ul>
+        ${pulls.length 
+          ? pulls.map(pull => {
+              const a = animals.find(x => x.name === pull);
+              return `<li>${a ? a.emoji : ''} ${pull}</li>`;
+            }).join('') 
+          : '<li>Nenhuma puxada disponível.</li>'}
+      </ul>
+    `;
+  });
+}
+
+// Inicialização das novas funções
+document.addEventListener('DOMContentLoaded', () => {
+  const bancaSelect = document.getElementById('bancaSelect');
+  const gerarPalpitesBtn = document.getElementById('gerarPalpites');
+
+  bancaSelect.addEventListener('change', () => {
+    document.getElementById('palpiteOutput').style.display = 'none';
+    gerarPalpitesBtn.disabled = !bancaSelect.value;
+  });
+
+  gerarPalpitesBtn.addEventListener('click', displayPalpites);
+
+  populateAnimalSelect();
+  handlePuxada();
+});
+</script>
+</body>
+</html>
